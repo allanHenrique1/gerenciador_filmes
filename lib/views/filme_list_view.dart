@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+
 import '../controllers/filme_controller.dart';
 import '../models/filme.dart';
+import 'filme_detail_view.dart';
+import 'filme_form_view.dart';
 
 class FilmeListView extends StatelessWidget {
+  const FilmeListView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<FilmeController>(context);
@@ -21,9 +27,7 @@ class FilmeListView extends StatelessWidget {
                 builder:
                     (_) => AlertDialog(
                       title: Text('Grupo'),
-                      content: Text(
-                        'Grupo : Allan Henrique Rodrigues de Meireles',
-                      ),
+                      content: Text('Nome do grupo: [Seu Nome ou Grupo]'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
@@ -44,20 +48,36 @@ class FilmeListView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final filme = controller.filmes[index];
 
-                  return Dismissible(
-                    key: Key(filme.id.toString()),
-                    direction: DismissDirection.startToEnd,
-                    onDismissed: (_) {
-                      controller.deleteFilme(filme.id!);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${filme.titulo} deletado')),
-                      );
-                    },
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 16),
-                      child: Icon(Icons.delete, color: Colors.white),
+                  return Slidable(
+                    key: ValueKey(filme.id),
+                    endActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: 0.5,
+                      children: [
+                        SlidableAction(
+                          onPressed: (context) {
+                            _showOpcoes(context, filme);
+                          },
+                          backgroundColor: Colors.grey[700]!,
+                          foregroundColor: Colors.white,
+                          icon: Icons.more_horiz,
+                          label: 'Opções',
+                        ),
+                        SlidableAction(
+                          onPressed: (context) {
+                            controller.deleteFilme(filme.id!);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${filme.titulo} deletado'),
+                              ),
+                            );
+                          },
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          icon: Icons.delete,
+                          label: 'Excluir',
+                        ),
+                      ],
                     ),
                     child: Card(
                       child: ListTile(
@@ -84,9 +104,6 @@ class FilmeListView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          // Aqui você vai colocar: Exibir detalhes ou Editar
-                        },
                       ),
                     ),
                   );
@@ -94,10 +111,52 @@ class FilmeListView extends StatelessWidget {
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Aqui você vai navegar para a tela de cadastro
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FilmeFormView()),
+          );
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showOpcoes(BuildContext context, Filme filme) {
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (_) => SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.visibility),
+                  title: Text('Exibir Dados'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FilmeDetailView(filme: filme),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.edit),
+                  title: Text('Alterar'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FilmeFormView(filme: filme),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
     );
   }
 }
