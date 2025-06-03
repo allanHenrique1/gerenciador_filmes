@@ -1,4 +1,3 @@
-import 'package:sqflite/sqflite.dart';
 import '../../models/filme.dart';
 import '../filme_database.dart';
 
