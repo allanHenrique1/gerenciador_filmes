@@ -7,22 +7,44 @@ class FilmeController with ChangeNotifier {
   List<Filme> filmes = [];
 
   Future<void> loadFilmes() async {
-    filmes = await _dao.getAllFilmes();
-    notifyListeners();
+    try {
+      filmes = await _dao.getAllFilmes();
+      notifyListeners();
+    } catch (e) {
+      // Log de erro opcional
+    }
   }
 
   Future<void> addFilme(Filme filme) async {
-    await _dao.insertFilme(filme);
-    await loadFilmes();
+    try {
+      final id = await _dao.insertFilme(filme);
+      if (id != -1) {
+        await loadFilmes();
+      }
+    } catch (e) {
+      // Log de erro opcional
+    }
   }
 
   Future<void> updateFilme(Filme filme) async {
-    await _dao.updateFilme(filme);
-    await loadFilmes();
+    try {
+      final count = await _dao.updateFilme(filme);
+      if (count > 0) {
+        await loadFilmes();
+      }
+    } catch (e) {
+      // Log de erro opcional
+    }
   }
 
   Future<void> deleteFilme(int id) async {
-    await _dao.deleteFilme(id);
-    await loadFilmes();
+    try {
+      final count = await _dao.deleteFilme(id);
+      if (count > 0) {
+        await loadFilmes();
+      }
+    } catch (e) {
+      // Log de erro opcional
+    }
   }
 }

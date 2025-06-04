@@ -8,30 +8,44 @@ import '../models/filme.dart';
 import 'filme_detail_view.dart';
 import 'filme_form_view.dart';
 
-class FilmeListView extends StatelessWidget {
+class FilmeListView extends StatefulWidget {
   const FilmeListView({super.key});
 
   @override
+  State<FilmeListView> createState() => _FilmeListViewState();
+}
+
+class _FilmeListViewState extends State<FilmeListView> {
+  late FilmeController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Provider.of<FilmeController>(context, listen: false);
+    controller.loadFilmes();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<FilmeController>(context);
+    controller = Provider.of<FilmeController>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Filmes'),
+        title: const Text('Filmes'),
         actions: [
           IconButton(
-            icon: Icon(Icons.info),
+            icon: const Icon(Icons.info),
             onPressed: () {
               showDialog(
                 context: context,
                 builder:
                     (_) => AlertDialog(
-                      title: Text('Grupo'),
-                      content: Text('Nome do grupo: [Seu Nome ou Grupo]'),
+                      title: const Text('Grupo'),
+                      content: const Text('Nome do grupo: [Seu Nome ou Grupo]'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text('Fechar'),
+                          child: const Text('Fechar'),
                         ),
                       ],
                     ),
@@ -42,7 +56,7 @@ class FilmeListView extends StatelessWidget {
       ),
       body:
           controller.filmes.isEmpty
-              ? Center(child: Text('Nenhum filme cadastrado.'))
+              ? const Center(child: Text('Nenhum filme cadastrado.'))
               : ListView.builder(
                 itemCount: controller.filmes.length,
                 itemBuilder: (context, index) {
@@ -55,17 +69,15 @@ class FilmeListView extends StatelessWidget {
                       extentRatio: 0.5,
                       children: [
                         SlidableAction(
-                          onPressed: (context) {
-                            _showOpcoes(context, filme);
-                          },
+                          onPressed: (context) => _showOpcoes(context, filme),
                           backgroundColor: Colors.grey[700]!,
                           foregroundColor: Colors.white,
                           icon: Icons.more_horiz,
                           label: 'Opções',
                         ),
                         SlidableAction(
-                          onPressed: (context) {
-                            controller.deleteFilme(filme.id!);
+                          onPressed: (context) async {
+                            await controller.deleteFilme(filme.id!);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('${filme.titulo} deletado'),
@@ -96,8 +108,10 @@ class FilmeListView extends StatelessWidget {
                             RatingBarIndicator(
                               rating: filme.pontuacao,
                               itemBuilder:
-                                  (context, _) =>
-                                      Icon(Icons.star, color: Colors.amber),
+                                  (context, _) => const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
                               itemCount: 5,
                               itemSize: 20.0,
                               direction: Axis.horizontal,
@@ -113,10 +127,10 @@ class FilmeListView extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => FilmeFormView()),
+            MaterialPageRoute(builder: (context) => const FilmeFormView()),
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -129,8 +143,8 @@ class FilmeListView extends StatelessWidget {
             child: Wrap(
               children: [
                 ListTile(
-                  leading: Icon(Icons.visibility),
-                  title: Text('Exibir Dados'),
+                  leading: const Icon(Icons.visibility),
+                  title: const Text('Exibir Dados'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -142,8 +156,8 @@ class FilmeListView extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text('Alterar'),
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Alterar'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(

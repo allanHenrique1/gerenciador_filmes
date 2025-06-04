@@ -5,7 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 class FilmeDetailView extends StatelessWidget {
   final Filme filme;
 
-  FilmeDetailView({required this.filme});
+  const FilmeDetailView({super.key, required this.filme});
 
   @override
   Widget build(BuildContext context) {

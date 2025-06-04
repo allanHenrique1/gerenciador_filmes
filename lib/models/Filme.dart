@@ -23,8 +23,7 @@ class Filme {
 
   // Converter Filme para Map (para banco de dados)
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = {
       'urlImagem': urlImagem,
       'titulo': titulo,
       'genero': genero,
@@ -34,23 +33,38 @@ class Filme {
       'descricao': descricao,
       'ano': ano,
     };
+
+    if (id != null) {
+      map['id'] = id!;
+    }
+
+    return map;
   }
 
   // Criar Filme a partir de Map (do banco de dados)
   factory Filme.fromMap(Map<String, dynamic> map) {
     return Filme(
-      id: map['id'],
-      urlImagem: map['urlImagem'],
-      titulo: map['titulo'],
-      genero: map['genero'],
-      faixaEtaria: map['faixaEtaria'],
-      duracao: map['duracao'],
+      id:
+          map['id'] is int
+              ? map['id'] as int
+              : int.tryParse(map['id'].toString()),
+      urlImagem: map['urlImagem'] as String,
+      titulo: map['titulo'] as String,
+      genero: map['genero'] as String,
+      faixaEtaria: map['faixaEtaria'] as String,
+      duracao:
+          map['duracao'] is int
+              ? map['duracao'] as int
+              : int.tryParse(map['duracao'].toString()) ?? 0,
       pontuacao:
           map['pontuacao'] is int
               ? (map['pontuacao'] as int).toDouble()
-              : map['pontuacao'],
-      descricao: map['descricao'],
-      ano: map['ano'],
+              : (map['pontuacao'] as double),
+      descricao: map['descricao'] as String,
+      ano:
+          map['ano'] is int
+              ? map['ano'] as int
+              : int.tryParse(map['ano'].toString()) ?? 0,
     );
   }
 }

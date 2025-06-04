@@ -11,7 +11,6 @@ class FilmeFormView extends StatefulWidget {
   const FilmeFormView({super.key, this.filme});
 
   @override
-  // ignore: library_private_types_in_public_api
   _FilmeFormViewState createState() => _FilmeFormViewState();
 }
 
@@ -62,7 +61,7 @@ class _FilmeFormViewState extends State<FilmeFormView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<FilmeController>(context);
+    final controller = Provider.of<FilmeController>(context, listen: false);
     final isEditing = widget.filme != null;
 
     return Scaffold(
@@ -87,7 +86,7 @@ class _FilmeFormViewState extends State<FilmeFormView> {
               _buildRatingBar(),
               _buildTextField('Descrição', _descricaoController, maxLines: 3),
               _buildTextField('Ano', _anoController, isNumeric: true),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -104,8 +103,10 @@ class _FilmeFormViewState extends State<FilmeFormView> {
                     );
 
                     if (isEditing) {
+                      print('Atualizando filme...');
                       controller.updateFilme(filme);
                     } else {
+                      print('Adicionando filme...');
                       controller.addFilme(filme);
                     }
 
@@ -135,7 +136,7 @@ class _FilmeFormViewState extends State<FilmeFormView> {
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -163,7 +164,7 @@ class _FilmeFormViewState extends State<FilmeFormView> {
             _faixaEtaria = value!;
           });
         },
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'Faixa Etária',
           border: OutlineInputBorder(),
         ),
@@ -177,14 +178,15 @@ class _FilmeFormViewState extends State<FilmeFormView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Pontuação'),
+          const Text('Pontuação'),
           RatingBar.builder(
             initialRating: _pontuacao,
             minRating: 0,
             direction: Axis.horizontal,
             allowHalfRating: true,
             itemCount: 5,
-            itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+            itemBuilder:
+                (context, _) => const Icon(Icons.star, color: Colors.amber),
             onRatingUpdate: (rating) {
               setState(() {
                 _pontuacao = rating;
