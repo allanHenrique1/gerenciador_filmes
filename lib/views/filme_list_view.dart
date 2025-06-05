@@ -8,6 +8,8 @@ import '../models/filme.dart';
 import 'filme_detail_view.dart';
 import 'filme_form_view.dart';
 
+enum OpcaoFilme { exibir, alterar }
+
 class FilmeListView extends StatefulWidget {
   const FilmeListView({super.key});
 
@@ -27,6 +29,7 @@ class _FilmeListViewState extends State<FilmeListView> {
 
   @override
   Widget build(BuildContext context) {
+    final rootContext = context; 
     controller = Provider.of<FilmeController>(context);
 
     return Scaffold(
@@ -37,14 +40,14 @@ class _FilmeListViewState extends State<FilmeListView> {
             icon: const Icon(Icons.info),
             onPressed: () {
               showDialog(
-                context: context,
+                context: rootContext,
                 builder:
                     (_) => AlertDialog(
                       title: const Text('Grupo'),
-                      content: const Text('Nome do grupo: [Seu Nome ou Grupo]'),
+                      content: const Text('Allan Henrique Rodrigues de Meireles'),
                       actions: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(rootContext),
                           child: const Text('Fechar'),
                         ),
                       ],
@@ -69,16 +72,16 @@ class _FilmeListViewState extends State<FilmeListView> {
                       extentRatio: 0.5,
                       children: [
                         SlidableAction(
-                          onPressed: (context) => _showOpcoes(context, filme),
+                          onPressed: (_) => _handleOpcoes(rootContext, filme),
                           backgroundColor: Colors.grey[700]!,
                           foregroundColor: Colors.white,
                           icon: Icons.more_horiz,
                           label: 'Opções',
                         ),
                         SlidableAction(
-                          onPressed: (context) async {
+                          onPressed: (_) async {
                             await controller.deleteFilme(filme.id!);
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(rootContext).showSnackBar(
                               SnackBar(
                                 content: Text('${filme.titulo} deletado'),
                               ),
@@ -93,12 +96,18 @@ class _FilmeListViewState extends State<FilmeListView> {
                     ),
                     child: Card(
                       child: ListTile(
-                        leading: Image.network(
-                          filme.urlImagem,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
+                        leading:
+                            filme.urlImagem.isNotEmpty
+                                ? Image.network(
+                                  filme.urlImagem,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(Icons.broken_image),
+                                )
+                                : const Icon(Icons.image_not_supported),
                         title: Text(filme.titulo),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +135,7 @@ class _FilmeListViewState extends State<FilmeListView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-            context,
+            rootContext,
             MaterialPageRoute(builder: (context) => const FilmeFormView()),
           );
         },
@@ -135,42 +144,46 @@ class _FilmeListViewState extends State<FilmeListView> {
     );
   }
 
-  void _showOpcoes(BuildContext context, Filme filme) {
-    showModalBottomSheet(
+  Future<OpcaoFilme?> _showOpcoes(BuildContext context) {
+    return showModalBottomSheet<OpcaoFilme>(
       context: context,
       builder:
-          (_) => SafeArea(
+          (context) => SafeArea(
             child: Wrap(
               children: [
                 ListTile(
                   leading: const Icon(Icons.visibility),
                   title: const Text('Exibir Dados'),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FilmeDetailView(filme: filme),
-                      ),
-                    );
+                    Navigator.pop(context, OpcaoFilme.exibir);
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.edit),
                   title: const Text('Alterar'),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FilmeFormView(filme: filme),
-                      ),
-                    );
+                    Navigator.pop(context, OpcaoFilme.alterar);
                   },
                 ),
               ],
             ),
           ),
     );
+  }
+
+  void _handleOpcoes(BuildContext context, Filme filme) async {
+    final opcao = await _showOpcoes(context);
+
+    if (opcao == OpcaoFilme.exibir) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FilmeDetailView(filme: filme)),
+      );
+    } else if (opcao == OpcaoFilme.alterar) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FilmeFormView(filme: filme)),
+      );
+    }
   }
 }
